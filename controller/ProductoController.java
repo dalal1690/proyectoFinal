@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
 import com.ada.proyectoFinal.model.Producto;
@@ -36,19 +33,15 @@ public class ProductoController {
 	ProductoRepository productoRepository;
 
 	Log log = LogFactory.getLog(ProductoController.class);
-
+		
 	@PostMapping(path = "/new-product")
 	@Operation(summary = "Save new product", description = "Saves a new product added to the database")
-	public ResponseEntity<Producto> saveProduct(@RequestBody Producto product, BindingResult bindingResult) {
-		if (bindingResult.hasErrors()) {
-			log.info("Error en la carga del producto");
-			return new ResponseEntity<>(product, HttpStatus.CONFLICT);
-		}
-		log.info("Guardar producto nuevo: " + product);
+	public ResponseEntity<Producto> guardarProducto(@RequestBody Producto product) {
+		log.info("Guadar producto nuevo " + product);
 		productoRepository.save(product);
 		return new ResponseEntity<>(product, HttpStatus.CREATED);
 	}
-
+	
 	@GetMapping(path = "/products/{id}")
 	@Operation(summary = "Get a product", description = "Gets a product already saved in the database")
 	public ResponseEntity<Producto> getProducto(@PathVariable("id") Integer id) {
@@ -57,7 +50,6 @@ public class ProductoController {
 		if (Optional.empty().equals(product)) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		} else {
-
 			Producto returnProduct = product.get();
 			return new ResponseEntity<>(returnProduct, HttpStatus.OK);
 		}
@@ -74,11 +66,7 @@ public class ProductoController {
 
 	@DeleteMapping(path = "/products/{id}")
 	@Operation(summary = "Delete a product", description = "Deletes a product already saved in the database")
-	public ResponseEntity<Object> deleteProducto(@PathVariable Integer id, BindingResult bindingResult) {
-		if (bindingResult.hasErrors()) {
-			log.info("Error al elimiar el producto");
-			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-		}
+	public ResponseEntity<Object> deleteProducto(@PathVariable Integer id) {
 		log.info("Producto" + id + " borrado");
 		productoRepository.deleteById(id);
 		return new ResponseEntity<>(null, HttpStatus.OK);
@@ -86,10 +74,7 @@ public class ProductoController {
 
 	@PutMapping(path = "/products")
 	@Operation(summary = "Update a product", description = "Updates a product already saved in the database")
-	public ResponseEntity<Producto> updateProduct(@RequestBody Producto product, RedirectAttributes redirectAttrs) {
-		redirectAttrs
-		.addFlashAttribute("mensaje", " Eliminado correctamente")
-		.addFlashAttribute("clase", "warning");
+	public ResponseEntity<Producto> updateProduct(@RequestBody Producto product) {
 		log.info("Actualizar producto: " + product);
 		productoRepository.save(product);
 		return new ResponseEntity<>(product, HttpStatus.CREATED);
